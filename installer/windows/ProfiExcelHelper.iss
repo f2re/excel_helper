@@ -46,10 +46,31 @@ Filename: "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoP
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\install.ps1"" -PayloadRoot ""{app}\payload"" -Mode Full -Silent"; StatusMsg: "Установка XLAM и XLTM..."; Flags: runhidden waituntilterminated; Check: not IsWin64
 
 [UninstallRun]
-Filename: "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\uninstall.ps1"" -Silent -Force"; Flags: runhidden waituntilterminated; Check: IsWin64
-Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\uninstall.ps1"" -Silent -Force"; Flags: runhidden waituntilterminated; Check: not IsWin64
+Filename: "{sysnative}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\uninstall.ps1"" -Silent"; Flags: runhidden waituntilterminated; Check: IsWin64
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\installer\uninstall.ps1"" -Silent"; Flags: runhidden waituntilterminated; Check: not IsWin64
 
 [Icons]
 Name: "{group}\ПрофиПомощник — новый проект"; Filename: "{userappdata}\Microsoft\Templates\ProfiExcelHelper\ProfiExcelHelper-Template.xltm"
 Name: "{group}\Папка установки"; Filename: "{app}"
 Name: "{autodesktop}\ПрофиПомощник — новый проект"; Filename: "{userappdata}\Microsoft\Templates\ProfiExcelHelper\ProfiExcelHelper-Template.xltm"; Tasks: desktopicon
+
+[Code]
+function ExcelIsRunning: Boolean;
+begin
+  Result := FindWindowByClassName('XLMAIN') <> 0;
+end;
+
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+begin
+  if ExcelIsRunning then
+    Result := 'Закройте все окна Microsoft Excel и повторите установку.'
+  else
+    Result := '';
+end;
+
+function InitializeUninstall(): Boolean;
+begin
+  Result := not ExcelIsRunning;
+  if not Result then
+    MsgBox('Перед удалением ПрофиПомощника закройте все окна Microsoft Excel.', mbError, MB_OK);
+end;
