@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
   [string]$XlamPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam'),
   [string]$XltmPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Template.xltm')
