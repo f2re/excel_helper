@@ -1,2 +1,18 @@
-param([string]$XlamPath="$(Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam')")
-$ErrorActionPreference='Stop';if(!(Test-Path $XlamPath)){& (Join-Path $PSScriptRoot 'build-xlam.ps1') -OutputPath $XlamPath};$targetDir=Join-Path $env:APPDATA 'Microsoft\AddIns';New-Item -ItemType Directory -Force -Path $targetDir|Out-Null;$target=Join-Path $targetDir 'ProfiExcelHelper-Legacy.xlam';Copy-Item $XlamPath $target -Force;$excel=New-Object -ComObject Excel.Application;try{$excel.DisplayAlerts=$false;$addin=$excel.AddIns.Add($target,$true);$addin.Installed=$true;Write-Host "Installed: $target"}finally{$excel.Quit();[GC]::Collect();[GC]::WaitForPendingFinalizers()}
+[CmdletBinding()]
+param(
+  [string]$XlamPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam'),
+  [switch]$Force
+)
+
+$ErrorActionPreference = 'Stop'
+$installerModule = Join-Path $PSScriptRoot '..\..\installer\windows\ProfiInstaller.Common.psm1'
+Import-Module $installerModule -Force
+if (-not (Test-Path -LiteralPath $XlamPath)) {
+  & (Join-Path $PSScriptRoot 'build-xlam.ps1') -OutputPath $XlamPath
+}
+Assert-ProfiExcelClosed -Force:$Force
+$paths = Get-ProfiInstallPaths
+$target = Join-Path $paths.Addins 'ProfiExcelHelper-Legacy.xlam'
+Copy-ProfiFile -Source ([IO.Path]::GetFullPath($XlamPath)) -Destination $target
+Register-ProfiExcelAddin -Path $target
+Write-Host "Installed XLAM: $target"
