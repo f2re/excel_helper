@@ -36,7 +36,18 @@ jobs:
         run: npm run distribution:check
       - name: Unit tests
         shell: powershell
-        run: npm test
+        run: |
+          npm test *> unit-test-output.txt
+          $code = $LASTEXITCODE
+          Get-Content unit-test-output.txt -Tail 120
+          if ($code -ne 0) { exit $code }
+      - name: Upload failed test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-unit-test-output
+          path: unit-test-output.txt
+          if-no-files-found: ignore
       - name: Manifest validation
         shell: powershell
         run: npm run validate
