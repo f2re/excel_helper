@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
   [string]$PayloadRoot = (Join-Path $PSScriptRoot '..\..\release\payload'),
   [string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist')
