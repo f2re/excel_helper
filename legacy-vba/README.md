@@ -1,28 +1,53 @@
-# 🧩 ПрофиПомощник Legacy XLAM
+# 🧩 ПрофиПомощник Legacy Office
 
-Этот контур предназначен для **Excel 2010, 2013 и 2016 под Windows**. Отдельного выпуска «Office 2012» не существовало; для машин этого периода ориентируйтесь на Office 2010 или Office 2013.
+Legacy-контур предназначен для Excel 2010, 2013, 2016 и 2019 под Windows. Отдельного Office 2012 не существовало; для компьютеров этого периода используйте вариант Office 2010/2013.
+
+## Пакеты
+
+| Файл | Назначение |
+|---|---|
+| `ProfiExcelHelper-Legacy.xlam` | глобальная надстройка для всех книг |
+| `ProfiExcelHelper-Template.xltm` | переносимый шаблон новой рабочей книги |
 
 ## Сборка
 
-1. Разрешите в Excel доступ к объектной модели проекта VBA: Параметры → Центр управления безопасностью → Параметры макросов.
-2. Запустите PowerShell от обычного пользователя:
+В Excel разрешите доступ к объектной модели проекта VBA, затем выполните:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\build-office-packages.ps1
+```
+
+Отдельные команды:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\build-xlam.ps1
+powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\build-xltm.ps1
+powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\verify-office-packages.ps1
+```
+
+## Установка
+
+Старый совместимый способ XLAM:
+
+```powershell
 powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\install-xlam.ps1
 ```
 
-После установки на вкладке **Надстройки** появится меню «ПрофиПомощник».
+Полная поставка XLAM + XLTM:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File installer\windows\install.ps1 -PayloadRoot release\payload -Mode Full
+```
 
 ## Возможности
 
 - кадровые UDF с префиксом `PROFI_`;
-- мастер ФИО и поиск дублей;
-- недельный планировщик;
-- автоматическое создание служебных листов;
-- импорт группового листа, выбор группы вручную или из ячейки;
+- мастер ФИО, дубли и недельный план;
+- автоматическая служебная схема;
+- выбор группы вручную, из имени листа или из выбранной ячейки;
 - редактируемый профиль парсера;
-- легенда преподавателей, потоки, Round-Robin и конфликты;
-- сводное расписание и лист контроля.
+- алиасы преподавателей, потоки, Round-Robin и конфликты;
+- сводное расписание и лист контроля;
+- стартовая страница XLTM, не требующая постоянной установки.
 
-XLAM содержит макросы, поэтому в корпоративной среде файл следует подписать доверенным сертификатом.
+Перед корпоративной поставкой подпишите VBA-проекты доверенным сертификатом.
