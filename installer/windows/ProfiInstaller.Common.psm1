@@ -1,4 +1,4 @@
-Set-StrictMode -Version 2.0
+﻿Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 
 function Get-ProfiInstallPaths {
@@ -29,7 +29,7 @@ function Get-ProfiOfficeInfo {
     $version = $c2r.VersionToReport
     $bitness = $c2r.Platform
     $product = $c2r.ProductReleaseIds
-    $excelPath = Join-Path $c2r.InstallationPath 'root\Office16\EXCEL.EXE'
+    if ($c2r.InstallationPath) { $excelPath = Join-Path $c2r.InstallationPath 'root\Office16\EXCEL.EXE' }
   }
   foreach ($officeVersion in @('16.0', '15.0', '14.0')) {
     if ($null -eq $excelPath -or -not (Test-Path -LiteralPath $excelPath)) {
@@ -40,7 +40,10 @@ function Get-ProfiOfficeInfo {
           if (Test-Path -LiteralPath $candidate) {
             $excelPath = $candidate
             if (-not $version) { $version = $officeVersion }
-            if (-not $bitness) { $bitness = if ($base -like '*WOW6432Node*') { 'x86' } else { 'x64' } }
+            if (-not $bitness) {
+              $bitness = 'x64'
+              if ($base -like '*WOW6432Node*') { $bitness = 'x86' }
+            }
             break
           }
         }
