@@ -1,0 +1,33 @@
+[CmdletBinding()]
+param(
+  [string]$PayloadRoot = (Join-Path $PSScriptRoot '..\..\release\payload'),
+  [string]$OutputDirectory = (Join-Path $PSScriptRoot 'dist')
+)
+
+$ErrorActionPreference = 'Stop'
+$payload = [IO.Path]::GetFullPath($PayloadRoot)
+foreach ($required in @(
+  'legacy\ProfiExcelHelper-Legacy.xlam',
+  'template\ProfiExcelHelper-Template.xltm',
+  'officejs\manifest.xml',
+  'officejs\manifest-office2016.xml'
+)) {
+  if (-not (Test-Path -LiteralPath (Join-Path $payload $required))) { throw "В payload отсутствует $required" }
+}
+
+$candidates = @(
+  "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",
+  "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+if ($candidates.Count -eq 0) { throw 'Не найден Inno Setup 6 (ISCC.exe).' }
+$iscc = $candidates[0]
+New-Item -ItemType Directory -Force -Path $OutputDirectory | Out-Null
+Push-Location $PSScriptRoot
+try {
+  & $iscc "/DPayloadDir=$payload" (Join-Path $PSScriptRoot 'ProfiExcelHelper.iss')
+  if ($LASTEXITCODE -ne 0) { throw "Inno Setup завершился с кодом $LASTEXITCODE" }
+  Copy-Item -Path (Join-Path $PSScriptRoot 'dist\ProfiExcelHelper-Setup-1.2.0.exe') -Destination $OutputDirectory -Force
+} finally {
+  Pop-Location
+}
+Write-Host "Installer built in $OutputDirectory"
