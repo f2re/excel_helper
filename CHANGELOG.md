@@ -1,11 +1,24 @@
 # 📝 Changelog
 
+## 1.2.0 — 2026-07-19
+
+- добавлен переносимый макросодержащий шаблон `ProfiExcelHelper-Template.xltm`;
+- исправлена модель целевой книги VBA для работы кода внутри XLTM/XLSM;
+- добавлен общий PowerShell-модуль сборки XLAM и XLTM;
+- добавлена COM-проверка созданных Office-файлов;
+- добавлен per-user PowerShell-установщик, восстановление и удаление;
+- добавлен проект Inno Setup для `ProfiExcelHelper-Setup-1.2.0.exe`;
+- добавлен переносимый ZIP-пакет;
+- добавлены Windows static CI и self-hosted workflow реальной сборки Excel;
+- расширена совместимость до Excel 2019 Windows;
+- обновлена документация поставки, установки и безопасности.
+
 ## 1.1.0 — 2026-07-19
 
 - добавлен legacy XLAM/VBA-контур для Excel 2010, 2013 и 2016 Windows;
 - добавлен task-pane-only манифест ExcelApi 1.1 для Office 2016;
 - добавлена ES5-панель без модулей, Shared Runtime и Custom Functions;
-- добавлены VBA UDF, legacy-составитель сводного расписания и PowerShell-сборка XLAM;
+- добавлены VBA UDF, legacy-составитель расписания и PowerShell-сборка XLAM;
 - добавлены автоматические проверки совместимости.
 
 ## 1.0.0
