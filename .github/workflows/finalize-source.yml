@@ -1,0 +1,99 @@
+name: Finalize and verify Excel Helper
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/finalize-source.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Restore source when publication is incomplete
+        if: ${{ hashFiles('package.json') == '' }}
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/excel-helper-source
+          mkdir -p /tmp/excel-helper-source .bootstrap/parts
+
+          fetch_blob() {
+            local part="$1"
+            local sha="$2"
+            curl --fail --silent --show-error \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/git/blobs/${sha}" \
+              | jq -r '.content' | tr -d '\n' | base64 --decode > ".bootstrap/parts/${part}"
+          }
+
+          fetch_blob part-00 d5aa470c5cf47e7f4282eeef761ec1b1de3564ea
+          fetch_blob part-01 a07640975b899dbcd2b98d3bd20f1e127c262fb9
+          fetch_blob part-02 c6f9e221cc9ea66b841f73f87db255e8c3893929
+          fetch_blob part-03 ffbadf69894c5c78f23c160eb3504288165109d0
+          fetch_blob part-04 46da8690ccbbe33dc89dbfd0ab5f805e30694d14
+          fetch_blob part-05 c7874f47d1563587ffbde9c8af9b8ffc75db40c8
+          fetch_blob part-06 e3bd640ae616db4539c7f94360190795d6daed0d
+          fetch_blob part-07 b47443fa318dd4a1c3df1b23154b8f09ddda70a3
+          fetch_blob part-08 8e061d2b14a46504049f5463f2985afd4f0d7c07
+
+          cat .bootstrap/parts/part-* | base64 --decode > /tmp/excel-helper-source.tar.xz
+          echo "9bbd2175f88e0c10c8090867c5cf7c699c8bd7d6bdf5f58921c25415c68f75db  /tmp/excel-helper-source.tar.xz" | sha256sum --check --strict
+          tar -xJf /tmp/excel-helper-source.tar.xz -C /tmp/excel-helper-source
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a /tmp/excel-helper-source/. .
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install clean dependencies
+        run: npm ci
+
+      - name: Run full project verification
+        run: npm run check
+
+      - name: Commit final verified tree and remove temporary workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -f .github/workflows/finalize-source.yml
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: finalize verified Excel helper source"
+            git push origin HEAD:main
+          fi
+
+      - name: Publish version tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin main
+          git tag -f v1.0.0 origin/main
+          git push --force origin v1.0.0
+
+      - name: Remove transport branches
+        if: success()
+        continue-on-error: true
+        shell: bash
+        run: |
+          git push origin --delete bootstrap-source || true
+          git push origin --delete inspect-staged-tree || true
+          git push origin --delete release-asset-probe || true
