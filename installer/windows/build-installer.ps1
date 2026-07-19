@@ -16,12 +16,12 @@ foreach ($required in @(
   if (-not (Test-Path -LiteralPath (Join-Path $payload $required))) { throw "В payload отсутствует $required" }
 }
 
-$candidates = @(
+$candidates = @(@(
   "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
   "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
-) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
+) | Where-Object { $_ -and (Test-Path -LiteralPath $_) })
 if ($candidates.Count -eq 0) { throw 'Не найден Inno Setup 6 (ISCC.exe).' }
-$iscc = $candidates[0]
+$iscc = [string]$candidates[0]
 New-Item -ItemType Directory -Force -Path $output | Out-Null
 Push-Location $PSScriptRoot
 try {
