@@ -75,13 +75,17 @@ End Sub
 
 Public Sub ProfiTemplateToggleServiceSheets()
     Dim ws As Worksheet, showSheets As Boolean
-    ProfiEnsureProject
-    Set ws = ProfiGetSheet("_PROFI_SETTINGS", True)
+    Set ws = ProfiGetSheet("_PROFI_SETTINGS", False)
+    If ws Is Nothing Then
+        ProfiEnsureProject
+        Set ws = ProfiGetSheet("_PROFI_SETTINGS", False)
+    End If
     If ws Is Nothing Then Exit Sub
     showSheets = (ws.Visible <> xlSheetVisible)
     ProfiSetHidden showSheets
     If showSheets Then
-        ws.Activate
+        Set ws = ProfiGetSheet("_PROFI_SETTINGS", False)
+        If Not ws Is Nothing Then ws.Activate
         MsgBox "Служебные листы показаны. После редактирования повторите команду, чтобы скрыть их.", vbInformation
     Else
         Set ws = ProfiGetSheet("Старт", False)
