@@ -30,8 +30,18 @@ jobs:
       - name: Compile Inno Setup project
         shell: powershell
         run: |
-          powershell -ExecutionPolicy Bypass -File installer\windows\build-installer.ps1 -PayloadRoot release\payload -OutputDirectory release
+          powershell -ExecutionPolicy Bypass -File installer\windows\build-installer.ps1 -PayloadRoot release\payload -OutputDirectory release *> installer-compile-output.txt
+          $code = $LASTEXITCODE
+          Get-Content installer-compile-output.txt -Tail 160
+          if ($code -ne 0) { exit $code }
           if (-not (Test-Path release\ProfiExcelHelper-Setup-1.2.0.exe)) { throw 'Installer EXE was not produced.' }
           $size = (Get-Item release\ProfiExcelHelper-Setup-1.2.0.exe).Length
           if ($size -lt 100000) { throw "Compiled installer is unexpectedly small: $size" }
           Write-Host "Inno Setup compile smoke passed: $size bytes"
+      - name: Upload installer compile diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-compile-output
+          path: installer-compile-output.txt
+          if-no-files-found: ignore
