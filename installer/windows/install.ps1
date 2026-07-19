@@ -22,7 +22,7 @@ if ([string]::IsNullOrWhiteSpace($PayloadRoot)) {
     (Join-Path $PSScriptRoot '..\..\release\payload')
   )
   $PayloadRoot = $candidates | Where-Object {
-    Test-Path -LiteralPath $_ -and (
+    (Test-Path -LiteralPath $_) -and (
       (Test-Path -LiteralPath (Join-Path $_ 'legacy')) -or
       (Test-Path -LiteralPath (Join-Path $_ 'template')) -or
       (Test-Path -LiteralPath (Join-Path $_ 'officejs'))
