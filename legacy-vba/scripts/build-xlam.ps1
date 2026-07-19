@@ -15,7 +15,7 @@ try {
   if (Test-Path -LiteralPath $fullOutput) { Remove-Item -LiteralPath $fullOutput -Force }
 
   $excel = New-ProfiExcelApplication
-  $workbook = $excel.Workbooks.Add()
+  $workbook = $excel.Workbooks.Add(-4167)
   [void](Import-ProfiVbaModules -Workbook $workbook -Exclude @('modProfiTemplate.bas'))
   Set-ProfiDocumentProperties -Workbook $workbook -Title 'ПрофиПомощник Legacy XLAM' -Version $Version
   $workbook.IsAddin = $true
