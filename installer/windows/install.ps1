@@ -81,8 +81,8 @@ try {
     officeVersion = $office.Version
     officeBitness = $office.Bitness
     officeProduct = $office.Product
-    addinPath = if ($Mode -in @('Full', 'AddinOnly')) { $addinTarget } else { $null }
-    templatePath = if ($Mode -in @('Full', 'TemplateOnly')) { $templateTarget } else { $null }
+    addinPath = $(if ($Mode -in @('Full', 'AddinOnly')) { $addinTarget } else { $null })
+    templatePath = $(if ($Mode -in @('Full', 'TemplateOnly')) { $templateTarget } else { $null })
     backup = $backup
     log = $log
   }
@@ -90,17 +90,22 @@ try {
   Write-Host "ПрофиПомощник установлен. Режим: $Mode"
   Write-Host "Excel: $($office.Version) $($office.Bitness)"
 } catch {
-  Write-Error $_
+  $failure = $_
+  Write-Warning "Установка не завершена: $($failure.Exception.Message). Выполняется откат."
   if ($addinRegistered -and (Test-Path -LiteralPath $addinTarget)) { Unregister-ProfiExcelAddin -Path $addinTarget }
   if ($Mode -in @('Full', 'AddinOnly')) {
-    if ($addinBackedUp) { Copy-Item -LiteralPath (Join-Path $backup 'ProfiExcelHelper-Legacy.xlam') -Destination $addinTarget -Force }
-    else { Remove-Item -LiteralPath $addinTarget -Force -ErrorAction SilentlyContinue }
+    if ($addinBackedUp) {
+      Copy-Item -LiteralPath (Join-Path $backup 'ProfiExcelHelper-Legacy.xlam') -Destination $addinTarget -Force
+      if (-not $SkipRegistration -and $office.Installed) { Register-ProfiExcelAddin -Path $addinTarget }
+    } else {
+      Remove-Item -LiteralPath $addinTarget -Force -ErrorAction SilentlyContinue
+    }
   }
   if ($Mode -in @('Full', 'TemplateOnly')) {
     if ($templateBackedUp) { Copy-Item -LiteralPath (Join-Path $backup 'ProfiExcelHelper-Template.xltm') -Destination $templateTarget -Force }
     else { Remove-Item -LiteralPath $templateTarget -Force -ErrorAction SilentlyContinue }
   }
-  throw
+  throw $failure
 } finally {
   Stop-Transcript | Out-Null
 }
