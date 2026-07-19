@@ -12,7 +12,8 @@ const files = [
   "legacy-vba/ribbon/customUI.xml",
   "legacy-vba/scripts/Test-LegacyPrerequisites.ps1",
   ".github/workflows/legacy-office.yml",
-  ".github/workflows/windows-static.yml"
+  ".github/workflows/windows-static.yml",
+  ".github/workflows/installer-compile.yml"
 ];
 for (const file of files) await access(path.join(root, file));
 
@@ -42,6 +43,10 @@ for (const token of ["self-hosted", "legacy:build-all", "ProfiExcelHelper-Templa
 const windowsWorkflow = await readFile(path.join(root, ".github/workflows/windows-static.yml"), "utf8");
 for (const token of ["windows-latest", "Parse project PowerShell sources", "Distribution audit"]) {
   if (!windowsWorkflow.includes(token)) throw new Error(`Windows workflow missing token: ${token}`);
+}
+const installerWorkflow = await readFile(path.join(root, ".github/workflows/installer-compile.yml"), "utf8");
+for (const token of ["choco install innosetup", "build-installer.ps1", "compile-only payload fixture"]) {
+  if (!installerWorkflow.includes(token)) throw new Error(`Installer compile workflow missing token: ${token}`);
 }
 
 const installer = await readFile(path.join(root, "installer/windows/ProfiExcelHelper.iss"), "utf8");
