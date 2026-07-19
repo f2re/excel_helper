@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
   [ValidateSet('Full', 'LegacyFull', 'AddinOnly', 'TemplateOnly', 'ModernOnly', 'AddinModern', 'TemplateModern')][string]$Mode = 'Full',
   [string]$PayloadRoot = '',
