@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<customUI xmlns="http://schemas.microsoft.com/office/2006/01/customui" onLoad="ProfiRibbonOnLoad">
+  <ribbon>
+    <tabs>
+      <tab id="ProfiExcelHelper.Tab" label="ПрофиПомощник">
+        <group id="ProfiExcelHelper.Project" label="Проект">
+          <button id="ProfiExcelHelper.Dashboard" label="Панель проекта" imageMso="HappyFace" size="large" onAction="ProfiRibbonShowDashboard"/>
+          <button id="ProfiExcelHelper.Ensure" label="Создать/проверить" imageMso="TableInsert" onAction="ProfiRibbonEnsureProject"/>
+          <button id="ProfiExcelHelper.ShowService" label="Показать служебные" imageMso="UnhideSheet" onAction="ProfiRibbonShowService"/>
+          <button id="ProfiExcelHelper.HideService" label="Скрыть служебные" imageMso="HideSheet" onAction="ProfiRibbonHideService"/>
+        </group>
+        <group id="ProfiExcelHelper.Schedule" label="Сводное расписание">
+          <button id="ProfiExcelHelper.Compose" label="Составить расписание" imageMso="CalendarInsert" size="large" onAction="ProfiRibbonComposeSchedule"/>
+          <button id="ProfiExcelHelper.Parser" label="Настроить парсер" imageMso="TablePropertiesExcel" onAction="ProfiRibbonConfigureParser"/>
+        </group>
+        <group id="ProfiExcelHelper.Tools" label="Помощники">
+          <button id="ProfiExcelHelper.Fio" label="Мастер ФИО" imageMso="ContactPictureMenu" onAction="ProfiRibbonFioWizard"/>
+          <button id="ProfiExcelHelper.Duplicates" label="Найти дубли" imageMso="ConditionalFormattingHighlightCellsRulesDuplicateValues" onAction="ProfiRibbonDuplicateManager"/>
+          <button id="ProfiExcelHelper.Planner" label="Недельный план" imageMso="AppointmentColorDialog" onAction="ProfiRibbonWeeklyPlanner"/>
+        </group>
+        <group id="ProfiExcelHelper.Help" label="Справка">
+          <button id="ProfiExcelHelper.HelpButton" label="Документация" imageMso="Help" onAction="ProfiRibbonHelp"/>
+          <button id="ProfiExcelHelper.About" label="О программе" imageMso="Info" onAction="ProfiRibbonAbout"/>
+        </group>
+      </tab>
+    </tabs>
+  </ribbon>
+</customUI>
