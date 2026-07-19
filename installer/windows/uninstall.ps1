@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([switch]$Silent, [switch]$Force)
 
 $ErrorActionPreference = 'Stop'
