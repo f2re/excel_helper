@@ -1,4 +1,4 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param(
   [string]$OutputPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Template.xltm'),
   [string]$Version = '1.2.0'
