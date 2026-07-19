@@ -84,7 +84,17 @@ function Set-ProfiThisWorkbookCode {
     [Parameter(Mandatory = $true)][string]$Code
   )
   Assert-ProfiVbaProjectAccess -Workbook $Workbook
-  $component = $Workbook.VBProject.VBComponents.Item('ThisWorkbook')
+  $component = $null
+  try { $component = $Workbook.VBProject.VBComponents.Item([string]$Workbook.CodeName) } catch { }
+  if ($null -eq $component) {
+    foreach ($candidate in $Workbook.VBProject.VBComponents) {
+      if ($candidate.Type -eq 100 -and $candidate.CodeModule.CountOfDeclarationLines -ge 0) {
+        $component = $candidate
+        if ([string]$candidate.Name -match 'ThisWorkbook|ЭтаКнига') { break }
+      }
+    }
+  }
+  if ($null -eq $component) { throw 'Не найден модуль рабочей книги для событий XLTM.' }
   $module = $component.CodeModule
   if ($module.CountOfLines -gt 0) { $module.DeleteLines(1, $module.CountOfLines) }
   $module.AddFromString($Code)
