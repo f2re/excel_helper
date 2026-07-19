@@ -1,0 +1,57 @@
+name: Build Legacy Office packages
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build-office-packages:
+    runs-on: [self-hosted, Windows, Excel]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Verify complete source
+        shell: powershell
+        run: |
+          npm ci
+          npm run check
+      - name: Build XLAM and XLTM using installed Excel
+        shell: powershell
+        run: npm run legacy:build-all
+      - name: Build modern Office.js package
+        shell: powershell
+        run: npm run build
+      - name: Build portable distribution
+        shell: powershell
+        run: npm run installer:bundle
+      - name: Build EXE when Inno Setup is installed
+        shell: powershell
+        run: |
+          $iscc = @(
+            "$env:ProgramFiles(x86)\Inno Setup 6\ISCC.exe",
+            "$env:ProgramFiles\Inno Setup 6\ISCC.exe"
+          ) | Where-Object { $_ -and (Test-Path $_) }
+          if ($iscc.Count -gt 0) {
+            powershell -ExecutionPolicy Bypass -File installer\windows\build-installer.ps1 -OutputDirectory release
+          } else {
+            Write-Warning "Inno Setup 6 not installed; EXE installer skipped."
+          }
+      - name: Upload legacy Office artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: ProfiExcelHelper-Legacy-Office
+          path: |
+            legacy-vba/dist/ProfiExcelHelper-Legacy.xlam
+            legacy-vba/dist/ProfiExcelHelper-Template.xltm
+            release/ProfiExcelHelper-Portable-*.zip
+            release/ProfiExcelHelper-Setup-*.exe
+          if-no-files-found: error
