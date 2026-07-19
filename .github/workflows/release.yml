@@ -1,0 +1,45 @@
+name: Build release package
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Install clean dependencies
+        run: npm ci
+      - name: Verify project
+        run: npm run check
+      - name: Package source and production build
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME:-manual}"
+          mkdir -p release
+          zip -qr "release/profi-excel-helper-${version}-dist.zip" dist
+          git archive --format=zip --output="release/profi-excel-helper-${version}-source.zip" HEAD
+          sha256sum release/*.zip > release/SHA256SUMS.txt
+      - name: Upload workflow artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: profi-excel-helper-release
+          path: release/
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: release/*
+          generate_release_notes: true
