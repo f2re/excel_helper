@@ -19,11 +19,36 @@ jobs:
         with:
           node-version: 20
           cache: npm
-      - name: Clean install and full verification
+      - name: Clean install
         shell: powershell
-        run: |
-          npm ci
-          npm run check
+        run: npm ci
+      - name: Generate metadata
+        shell: powershell
+        run: npm run generate
+      - name: JavaScript syntax
+        shell: powershell
+        run: npm run syntax
+      - name: Legacy source audit
+        shell: powershell
+        run: npm run legacy:check
+      - name: Distribution audit
+        shell: powershell
+        run: npm run distribution:check
+      - name: Unit tests
+        shell: powershell
+        run: npm test
+      - name: Manifest validation
+        shell: powershell
+        run: npm run validate
+      - name: Documentation links
+        shell: powershell
+        run: npm run docs:check
+      - name: Production build
+        shell: powershell
+        run: npm run build
+      - name: Distribution smoke test
+        shell: powershell
+        run: npm run smoke
       - name: Parse project PowerShell sources
         shell: powershell
         run: |
