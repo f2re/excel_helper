@@ -6,6 +6,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 Import-Module (Join-Path $PSScriptRoot 'Profi.Build.Common.psm1') -Force
+. (Join-Path $PSScriptRoot 'Inject-Ribbon.ps1')
 $excel = $null
 $workbook = $null
 try {
@@ -32,7 +33,14 @@ End Sub
   [void](Initialize-ProfiTemplateSheet -Workbook $workbook -Version $Version)
   Set-ProfiDocumentProperties -Workbook $workbook -Title 'ПрофиПомощник — переносимый шаблон' -Version $Version
   $workbook.SaveAs($fullOutput, 53)
+  $workbook.Close($false)
+  Close-ProfiComObject $workbook
+  $workbook = $null
+  $excel.Quit()
+  Close-ProfiComObject $excel
+  $excel = $null
 
+  Add-ProfiRibbon -WorkbookPath $fullOutput -RibbonXmlPath (Join-Path $PSScriptRoot '..\ribbon\customUI.xml')
   if (-not (Test-Path -LiteralPath $fullOutput)) { throw "Excel не создал файл: $fullOutput" }
   if ((Get-Item -LiteralPath $fullOutput).Length -lt 4096) { throw 'Созданный XLTM имеет подозрительно малый размер.' }
   Write-Host "Built XLTM: $fullOutput"
