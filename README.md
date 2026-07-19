@@ -12,22 +12,24 @@
 - преподавательские алиасы, потоковые занятия, детерминированный Round-Robin и контроль конфликтов;
 - автоматическое создание и восстановление всех `_PROFI_*` листов;
 - сводное расписание, выбранная неделя, нагрузка преподавателей и занятость аудиторий;
-- отдельный **Legacy XLAM/VBA-контур** для Excel 2010, 2013 и 2016 под Windows.
+- Legacy Office-пакеты для Excel 2010, 2013, 2016 и 2019 Windows.
 
-> Отдельного выпуска Microsoft Office 2012 не существовало. Для компьютеров этого периода поддерживаются Office 2010 и Office 2013.
+> Отдельного выпуска Microsoft Office 2012 не существовало. Для компьютеров этого периода поддерживаются варианты Office 2010 и Office 2013.
 
-## 💻 Совместимость
+## 📦 Варианты поставки
 
-| Клиент | Режим | Возможности |
+| Клиент | Пакет | Возможности |
 |---|---|---|
-| Microsoft 365 Excel Windows/macOS/Web | `manifest.xml` | Полная панель, 114 Custom Functions, 44 апплета, составитель расписания |
-| Excel 2016 Windows с ExcelApi 1.1 | `manifest-office2016.xml` | Облегчённая ES5-панель; полный набор legacy-команд через XLAM |
-| Excel 2010/2013/2016 Windows | `ProfiExcelHelper-Legacy.xlam` | VBA-UDF, меню, служебная схема, парсер и составитель расписания |
-| Старые Excel для macOS | ограниченно | Современный Office.js — по фактическим requirement sets; legacy-пакет ориентирован на Windows |
+| Microsoft 365 Excel Windows/macOS/Web | `manifest.xml` | полная панель, Custom Functions, апплеты и расписание |
+| Excel 2016 Windows с ExcelApi 1.1 | `manifest-office2016.xml` | облегчённая ES5-панель |
+| Excel 2010/2013/2016/2019 Windows | `ProfiExcelHelper-Legacy.xlam` | глобальные VBA-UDF, меню и составитель |
+| Excel 2010/2013/2016/2019 Windows | `ProfiExcelHelper-Template.xltm` | автономный проект из одного шаблона |
+| Windows | `ProfiExcelHelper-Setup-1.2.0.exe` | per-user установка XLAM + XLTM |
+| Windows без EXE | `ProfiExcelHelper-Portable-1.2.0.zip` | переносимый пакет и PowerShell-установка |
 
-Подробности и ограничения: [совместимость](docs/COMPATIBILITY.md) и [legacy-режим](docs/LEGACY_OFFICE.md).
+Подробнее: [варианты поставки](docs/DISTRIBUTION.md), [совместимость](docs/COMPATIBILITY.md), [legacy-режим](docs/LEGACY_OFFICE.md).
 
-## 🚀 Проверка и запуск современной надстройки
+## 🚀 Современная надстройка
 
 ```bash
 git clone https://github.com/f2re/excel_helper.git
@@ -37,64 +39,78 @@ npm run check
 npm start
 ```
 
-После запуска используйте `dist/manifest.xml`. Для совместимого task-pane режима Excel 2016 используйте `dist/manifest-office2016.xml`.
+После запуска используйте `dist/manifest.xml`. Для облегчённой панели Excel 2016 — `dist/manifest-office2016.xml`.
 
-## 🧩 Сборка Legacy XLAM
+## 🧩 XLAM и XLTM
 
 На Windows с установленным Excel:
 
 ```powershell
-powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\build-xlam.ps1
-powershell -ExecutionPolicy Bypass -File legacy-vba\scripts\install-xlam.ps1
+npm run legacy:build
+npm run legacy:build-template
+npm run legacy:build-all
+npm run legacy:verify
 ```
 
-Подробная инструкция: [legacy-vba/README.md](legacy-vba/README.md).
+Результаты:
+
+```text
+legacy-vba/dist/ProfiExcelHelper-Legacy.xlam
+legacy-vba/dist/ProfiExcelHelper-Template.xltm
+```
+
+## 🪟 Переносимый пакет и EXE
+
+```powershell
+npm run build
+npm run legacy:build-all
+npm run installer:bundle
+npm run installer:build
+```
+
+Последняя команда требует Inno Setup 6. Установка выполняется без прав администратора.
 
 ## 📅 Составление сводного расписания
 
 ```mermaid
 flowchart LR
-    A[Чистая книга] --> B[Составить сводное расписание]
-    B --> C[Создание служебных листов]
+    A[Чистая книга или XLTM] --> B[Составить сводное расписание]
+    B --> C[Автосоздание служебных листов]
     C --> D[Выбор или импорт листа группы]
     D --> E[Группа вручную / имя листа / выбранная ячейка]
     E --> F[Автоопределение сетки и легенды]
     F --> G{Распознано верно?}
     G -- нет --> H[Ручное изменение строк, столбцов и смещений]
     H --> F
-    G -- да --> I[Разбор занятий]
-    I --> J[Алиасы и кандидаты преподавателей]
-    J --> K[Потоки и Round-Robin]
-    K --> L[Конфликты и итоговые листы]
+    G -- да --> I[Занятия, преподаватели и алиасы]
+    I --> J[Потоки и Round-Robin]
+    J --> K[Конфликты и итоговые листы]
 ```
 
-Все системные страницы создаются при первом запуске либо восстанавливаются, если пользователь их удалил. Подробный flow: [SCHEDULE_WORKFLOW.md](docs/SCHEDULE_WORKFLOW.md).
+Все сервисные страницы создаются при первом запуске либо восстанавливаются, если пользователь их удалил.
+
+## 🧪 Контроль качества
+
+```bash
+npm run check
+```
+
+Проверяются современный код, 114 функций, 44 апплета, legacy VBA, XLAM/XLTM-сборщики, per-user установщик, PowerShell-синтаксис, оба манифеста, документация, production-сборка и smoke-тест.
+
+Настоящие бинарные XLAM/XLTM создаются на self-hosted Windows runner с установленным Excel. EXE дополнительно требует Inno Setup 6.
 
 ## 📚 Документация
 
 - [Индекс](docs/INDEX.md)
 - [Установка](docs/INSTALLATION.md)
+- [Варианты поставки](docs/DISTRIBUTION.md)
 - [Руководство пользователя](docs/USER_GUIDE.md)
 - [Сводное расписание](docs/SCHEDULE_WORKFLOW.md)
 - [Совместимость](docs/COMPATIBILITY.md)
-- [Office 2010–2016 / XLAM](docs/LEGACY_OFFICE.md)
+- [Office 2010–2019](docs/LEGACY_OFFICE.md)
 - [Архитектура](docs/ARCHITECTURE.md)
 - [Разработка](docs/DEVELOPMENT.md)
 - [Тестирование](docs/TESTING.md)
 - [Диагностика](docs/TROUBLESHOOTING.md)
 - [Функции](docs/FUNCTIONS.md)
 - [Апплеты](docs/APPLETS.md)
-
-## 🧪 Контроль качества
-
-`npm run check` выполняет генерацию каталогов, синтаксическую проверку, legacy-аудит, тесты, проверку манифестов и документации, production-сборку и smoke-тест `dist/`.
-
-Автоматическая проверка не заменяет ручной запуск в целевом клиенте Excel. Перед корпоративным развёртыванием выполните сценарии из [TESTING.md](docs/TESTING.md).
-
-## 🔐 Приватность
-
-Проект не требует отдельного backend. Исходные листы и расчётные таблицы хранятся в текущей книге. Скрытые листы не считаются средством защиты от пользователя, имеющего доступ к файлу.
-
-## 📄 Лицензия
-
-MIT — [LICENSE](LICENSE).
