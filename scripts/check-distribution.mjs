@@ -1,4 +1,4 @@
-import { access, readFile } from "node:fs/promises";
+import { access, readFile, readdir } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -53,4 +53,21 @@ const installer = await readFile(path.join(root, "installer/windows/ProfiExcelHe
 for (const token of ["[Types]", "[Components]", "LegacyFull", "ModernOnly", "PrivilegesRequired=lowest"]) {
   if (!installer.includes(token)) throw new Error(`Installer project missing token: ${token}`);
 }
-console.log(`Distribution metadata verified for ${pkg.version}: ${files.length} required files`);
+
+let localizedPowerShell = 0;
+for (const directory of ["legacy-vba/scripts", "installer/windows"]) {
+  const entries = await readdir(path.join(root, directory), { recursive: true, withFileTypes: true });
+  for (const entry of entries) {
+    if (!entry.isFile() || !/\.ps(?:1|m1)$/i.test(entry.name)) continue;
+    const relativeParent = entry.parentPath ? path.relative(path.join(root, directory), entry.parentPath) : "";
+    const fullPath = path.join(root, directory, relativeParent, entry.name);
+    const bytes = await readFile(fullPath);
+    const text = bytes.toString("utf8");
+    if (!/[^\x00-\x7F]/.test(text)) continue;
+    localizedPowerShell += 1;
+    if (!(bytes[0] === 0xef && bytes[1] === 0xbb && bytes[2] === 0xbf)) {
+      throw new Error(`Localized Windows PowerShell source must use UTF-8 BOM: ${path.relative(root, fullPath)}`);
+    }
+  }
+}
+console.log(`Distribution metadata verified for ${pkg.version}: ${files.length} required files, ${localizedPowerShell} localized PowerShell files`);
