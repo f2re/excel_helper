@@ -1,18 +1,20 @@
-# 📚 Документация
+# 📚 Документация ПрофиПомощника
 
 | Документ | Назначение |
 |---|---|
-| [Установка](INSTALLATION.md) | Современный Office.js, Office 2016 task pane и Legacy XLAM |
-| [Руководство пользователя](USER_GUIDE.md) | Функции, апплеты, поиск и рабочие сценарии |
-| [Сводное расписание](SCHEDULE_WORKFLOW.md) | Источники, группа, парсер, назначения и результаты |
-| [Совместимость](COMPATIBILITY.md) | Матрица Excel и ограничения API |
-| [Legacy Office](LEGACY_OFFICE.md) | Excel 2010, 2013 и 2016 Windows |
-| [Архитектура](ARCHITECTURE.md) | Два runtime-контура и служебная модель |
-| [Разработка](DEVELOPMENT.md) | Добавление функций, апплетов и VBA-модулей |
+| [README](../README.md) | обзор проекта и быстрый старт |
+| [Установка](INSTALLATION.md) | Office.js, XLAM, XLTM, PowerShell и EXE |
+| [Варианты поставки](DISTRIBUTION.md) | различия пакетов и процесс сборки |
+| [Совместимость](COMPATIBILITY.md) | Excel 2010–2019 и Microsoft 365 |
+| [Legacy Office](LEGACY_OFFICE.md) | VBA, XLAM, XLTM и ограничения |
+| [Руководство пользователя](USER_GUIDE.md) | функции, апплеты и панель |
+| [Сводное расписание](SCHEDULE_WORKFLOW.md) | полный flow парсинга и формирования |
+| [Функции](FUNCTIONS.md) | каталог функций |
+| [Апплеты](APPLETS.md) | каталог апплетов |
+| [Архитектура](ARCHITECTURE.md) | модули и данные |
+| [Разработка](DEVELOPMENT.md) | добавление функций и сборка |
 | [Тестирование](TESTING.md) | CI и ручная приёмка |
-| [Диагностика](TROUBLESHOOTING.md) | Типовые ошибки |
-| [Приватность](PRIVACY.md) | Хранение кадровых и учебных данных |
-| [Выпуск](RELEASE.md) | Подготовка релиза |
-| [Проверка сборки](BUILD_VERIFICATION.md) | Воспроизводимые команды |
-| [Функции](FUNCTIONS.md) | 114 функций Office.js |
-| [Апплеты](APPLETS.md) | 44 апплета |
+| [Диагностика](TROUBLESHOOTING.md) | типовые ошибки |
+| [Приватность](PRIVACY.md) | обработка данных |
+| [Выпуск](RELEASE.md) | подготовка версии |
+| [Проверка сборки](BUILD_VERIFICATION.md) | воспроизводимые команды |
