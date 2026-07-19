@@ -8,7 +8,7 @@
   "engines": {"node": ">=20"},
   "scripts": {
     "generate": "node scripts/generate-functions.mjs",
-    "test": "node --test --test-reporter spec tests/*.test.mjs",
+    "test": "node --test --test-reporter spec",
     "validate": "node scripts/validate.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "build": "node scripts/build.mjs",
@@ -20,11 +20,13 @@
     "syntax": "node scripts/syntax-check.mjs",
     "legacy:check": "node scripts/check-legacy.mjs",
     "distribution:check": "node scripts/check-distribution.mjs",
+    "legacy:prereq": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/Test-LegacyPrerequisites.ps1",
     "legacy:build": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xlam.ps1",
     "legacy:build-template": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xltm.ps1",
     "legacy:build-all": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-office-packages.ps1",
     "legacy:verify": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/verify-office-packages.ps1",
     "installer:bundle": "powershell -ExecutionPolicy Bypass -File installer/windows/build-portable-bundle.ps1",
-    "installer:build": "powershell -ExecutionPolicy Bypass -File installer/windows/build-installer.ps1"
+    "installer:build": "powershell -ExecutionPolicy Bypass -File installer/windows/build-installer.ps1",
+    "installer:sign": "powershell -ExecutionPolicy Bypass -File installer/windows/sign-installer.ps1"
   }
 }
