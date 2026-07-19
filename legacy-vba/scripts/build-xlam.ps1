@@ -1,3 +1,31 @@
-param([string]$OutputPath="$(Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam')")
-$ErrorActionPreference='Stop';$root=(Resolve-Path (Join-Path $PSScriptRoot '..')).Path;$src=Join-Path $root 'src';$dist=Split-Path $OutputPath -Parent;New-Item -ItemType Directory -Force -Path $dist|Out-Null;$excel=$null;$workbook=$null
-try{$excel=New-Object -ComObject Excel.Application;$excel.Visible=$false;$excel.DisplayAlerts=$false;$workbook=$excel.Workbooks.Add();foreach($file in Get-ChildItem $src -Filter '*.bas'|Sort-Object Name){[void]$workbook.VBProject.VBComponents.Import($file.FullName)};$workbook.IsAddin=$true;$workbook.SaveAs($OutputPath,55);Write-Host "Built: $OutputPath"}finally{if($workbook){$workbook.Close($false)};if($excel){$excel.Quit()};[GC]::Collect();[GC]::WaitForPendingFinalizers()}
+[CmdletBinding()]
+param(
+  [string]$OutputPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam'),
+  [string]$Version = '1.2.0'
+)
+
+$ErrorActionPreference = 'Stop'
+Import-Module (Join-Path $PSScriptRoot 'Profi.Build.Common.psm1') -Force
+$excel = $null
+$workbook = $null
+try {
+  $fullOutput = [IO.Path]::GetFullPath($OutputPath)
+  New-Item -ItemType Directory -Force -Path (Split-Path $fullOutput -Parent) | Out-Null
+  if (Test-Path -LiteralPath $fullOutput) { Remove-Item -LiteralPath $fullOutput -Force }
+
+  $excel = New-ProfiExcelApplication
+  $workbook = $excel.Workbooks.Add()
+  [void](Import-ProfiVbaModules -Workbook $workbook -Exclude @('modProfiTemplate.bas'))
+  Set-ProfiDocumentProperties -Workbook $workbook -Title 'ПрофиПомощник Legacy XLAM' -Version $Version
+  $workbook.IsAddin = $true
+  $workbook.SaveAs($fullOutput, 55)
+
+  if (-not (Test-Path -LiteralPath $fullOutput)) { throw "Excel не создал файл: $fullOutput" }
+  if ((Get-Item -LiteralPath $fullOutput).Length -lt 4096) { throw 'Созданный XLAM имеет подозрительно малый размер.' }
+  Write-Host "Built XLAM: $fullOutput"
+} finally {
+  if ($null -ne $workbook) { try { $workbook.Close($false) } catch { }; Close-ProfiComObject $workbook }
+  if ($null -ne $excel) { try { $excel.Quit() } catch { }; Close-ProfiComObject $excel }
+  [GC]::Collect()
+  [GC]::WaitForPendingFinalizers()
+}
