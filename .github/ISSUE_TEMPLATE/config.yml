@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔐 Сообщить об уязвимости
+    url: https://github.com/f2re/excel_helper/security
+    about: Не публикуйте уязвимости и персональные данные в открытом issue.

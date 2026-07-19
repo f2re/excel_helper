@@ -1,0 +1,22 @@
+name: 💡 Предложение
+about: Новая функция, апплет, шаблон или правило расписания
+title: "[Feature]: "
+labels: [enhancement]
+body:
+  - type: textarea
+    id: scenario
+    attributes:
+      label: Пользовательский сценарий
+      description: Кто, с какими данными и какой результат должен получить?
+    validations:
+      required: true
+  - type: textarea
+    id: current
+    attributes:
+      label: Как задача решается сейчас
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Критерии готовности
+    validations:
+      required: true
