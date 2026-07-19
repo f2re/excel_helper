@@ -2,10 +2,14 @@
 param(
   [string]$OutputDirectory = (Join-Path $PSScriptRoot '..\dist'),
   [string]$Version = '1.2.0',
-  [switch]$SkipVerification
+  [switch]$SkipVerification,
+  [switch]$SkipPrerequisiteCheck
 )
 
 $ErrorActionPreference = 'Stop'
+if (-not $SkipPrerequisiteCheck) {
+  & (Join-Path $PSScriptRoot 'Test-LegacyPrerequisites.ps1') -RequireVbaProjectAccess | Out-Host
+}
 $dist = [IO.Path]::GetFullPath($OutputDirectory)
 New-Item -ItemType Directory -Force -Path $dist | Out-Null
 $xlam = Join-Path $dist 'ProfiExcelHelper-Legacy.xlam'
