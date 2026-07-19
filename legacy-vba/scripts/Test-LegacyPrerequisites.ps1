@@ -1,16 +1,18 @@
-[CmdletBinding()]
+﻿[CmdletBinding()]
 param([switch]$RequireVbaProjectAccess)
 
 Set-StrictMode -Version 2.0
 $ErrorActionPreference = 'Stop'
 if ($env:OS -ne 'Windows_NT') { throw 'Legacy-сборка доступна только в Windows.' }
+$processBitness = 'x86'
+if ([Environment]::Is64BitProcess) { $processBitness = 'x64' }
 
 $result = [ordered]@{
   Windows = $true
   PowerShell = $PSVersionTable.PSVersion.ToString()
   ExcelAvailable = $false
   ExcelVersion = ''
-  ExcelProcessBitness = if ([Environment]::Is64BitProcess) { 'x64' } else { 'x86' }
+  ExcelProcessBitness = $processBitness
   VbaProjectAccess = $false
   InnoSetup = ''
   SignTool = ''
@@ -23,7 +25,7 @@ try {
   $excel.DisplayAlerts = $false
   $result.ExcelAvailable = $true
   $result.ExcelVersion = [string]$excel.Version
-  $workbook = $excel.Workbooks.Add()
+  $workbook = $excel.Workbooks.Add(-4167)
   try {
     $null = $workbook.VBProject.VBComponents.Count
     $result.VbaProjectAccess = $true
@@ -42,13 +44,14 @@ try {
   [GC]::Collect(); [GC]::WaitForPendingFinalizers()
 }
 
-$innoCandidates = @(
-  (Get-Command ISCC.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue),
-  (Join-Path "${env:ProgramFiles(x86)}" 'Inno Setup 6\ISCC.exe'),
-  (Join-Path "$env:ProgramFiles" 'Inno Setup 6\ISCC.exe')
-) | Where-Object { $_ -and (Test-Path -LiteralPath $_) }
-$result.InnoSetup = [string]($innoCandidates | Select-Object -First 1)
-$result.SignTool = [string](Get-Command signtool.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -ErrorAction SilentlyContinue)
+$innoCandidates = @()
+$innoCommand = Get-Command ISCC.exe -ErrorAction SilentlyContinue
+if ($null -ne $innoCommand) { $innoCandidates += $innoCommand.Source }
+$innoCandidates += (Join-Path "${env:ProgramFiles(x86)}" 'Inno Setup 6\ISCC.exe')
+$innoCandidates += (Join-Path "$env:ProgramFiles" 'Inno Setup 6\ISCC.exe')
+$result.InnoSetup = [string]($innoCandidates | Where-Object { $_ -and (Test-Path -LiteralPath $_) } | Select-Object -First 1)
+$signCommand = Get-Command signtool.exe -ErrorAction SilentlyContinue
+if ($null -ne $signCommand) { $result.SignTool = [string]$signCommand.Source }
 $result | Format-List
 if (-not $result.ExcelAvailable) { throw 'Microsoft Excel не обнаружен.' }
 if ($RequireVbaProjectAccess -and -not $result.VbaProjectAccess) {
