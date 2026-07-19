@@ -2,4 +2,4 @@ blank_issues_enabled: false
 contact_links:
   - name: 📚 Документация
     url: https://github.com/f2re/excel_helper/blob/main/docs/INDEX.md
-    about: Сначала проверьте руководства, совместимость и диагностику.
+    about: Сначала проверьте руководства и диагностику.

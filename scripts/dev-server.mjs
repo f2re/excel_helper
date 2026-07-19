@@ -1,0 +1,7 @@
+import https from "node:https";
+import { readFile, stat } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "dist"); const mime = { ".html":"text/html; charset=utf-8", ".js":"text/javascript; charset=utf-8", ".json":"application/json; charset=utf-8", ".css":"text/css; charset=utf-8", ".xml":"application/xml; charset=utf-8", ".png":"image/png", ".svg":"image/svg+xml" };
+const options = { key: await readFile(path.resolve(root, "..", ".certs/key.pem")), cert: await readFile(path.resolve(root, "..", ".certs/cert.pem")) };
+https.createServer(options, async (request, response) => { try { const url = new URL(request.url, "https://localhost"); let relative = decodeURIComponent(url.pathname).replace(/^\/+/, "") || "src/ui/taskpane.html"; let file = path.resolve(root, relative); if (!file.startsWith(root)) throw new Error("Forbidden"); if ((await stat(file)).isDirectory()) file = path.join(file, "index.html"); const body = await readFile(file); response.writeHead(200,{"Content-Type":mime[path.extname(file)]||"application/octet-stream","Access-Control-Allow-Origin":"*","Cache-Control":"no-store"}); response.end(body); } catch { response.writeHead(404,{"Content-Type":"text/plain; charset=utf-8"}); response.end("Not found"); } }).listen(3000,"0.0.0.0",()=>console.log("ПрофиПомощник: https://localhost:3000/src/ui/taskpane.html"));

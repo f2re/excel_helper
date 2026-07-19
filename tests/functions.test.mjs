@@ -1,0 +1,4 @@
+import test from 'node:test';import assert from 'node:assert/strict';import { evaluateFunction,normalizeFio,similarity } from '../src/core/functions-core.js';
+test('FIO helpers',()=>{assert.equal(normalizeFio(' иВАНОВ  иВАН '),'Иванов Иван');assert.equal(evaluateFunction('ФИОКРАТКО',['Иванов Иван Иванович']),'Иванов И. И.');assert.deepEqual(evaluateFunction('ФИОРАЗОБРАТЬ',['Петрова Анна Сергеевна']),[['Петрова','Анна','Сергеевна']])});
+test('contacts and planning',()=>{assert.equal(evaluateFunction('EMAILПРОВЕРКА',['a@b.ru']),true);assert.equal(evaluateFunction('АКАДЧАСЫ',[90,45]),2);assert.equal(evaluateFunction('СТАТУСЗАДАЧИ',['','2020-01-01','','2026-01-01']),'Просрочена')});
+test('lists and similarity',()=>{assert.equal(evaluateFunction('СПИСОКОБЪЕДИНИТЬ',['A;B','B;C']),'A; B; C');assert.ok(similarity('Ромашка ООО','ООО Ромашка')>=20)});

@@ -1,0 +1,24 @@
+{
+  "name": "profi-excel-helper",
+  "version": "1.1.0",
+  "private": true,
+  "type": "module",
+  "description": "ПрофиПомощник — Excel Office Add-in для кадров, преподавателей, планирования и сводного расписания",
+  "license": "MIT",
+  "engines": {"node": ">=20"},
+  "scripts": {
+    "generate": "node scripts/generate-functions.mjs",
+    "test": "node --test --test-reporter spec tests/*.test.mjs",
+    "validate": "node scripts/validate.mjs",
+    "docs:check": "node scripts/check-docs.mjs",
+    "build": "node scripts/build.mjs",
+    "build:dev": "BASE_URL=https://localhost:3000 node scripts/build.mjs",
+    "smoke": "node scripts/smoke-dist.mjs",
+    "check": "npm run generate && npm run syntax && npm run legacy:check && npm run test && npm run validate && npm run docs:check && npm run build && npm run smoke",
+    "certs": "bash scripts/generate-cert.sh",
+    "start": "npm run build:dev && npm run certs && node scripts/dev-server.mjs",
+    "syntax": "node scripts/syntax-check.mjs",
+    "legacy:check": "node scripts/check-legacy.mjs",
+    "legacy:build": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xlam.ps1"
+  }
+}

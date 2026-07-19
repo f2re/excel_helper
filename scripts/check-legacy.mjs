@@ -1,0 +1,11 @@
+import { readFile, access } from "node:fs/promises";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const files = ["legacy-vba/src/modProfiCommon.bas","legacy-vba/src/modProfiFunctions.bas","legacy-vba/src/modProfiProject.bas","legacy-vba/src/modProfiMenu.bas","legacy-vba/src/modProfiSchedule.bas","legacy-vba/scripts/build-xlam.ps1","legacy-vba/scripts/install-xlam.ps1","manifest-office2016.xml","src/ui/taskpane-office2016.html","src/ui/taskpane-office2016.js"];
+for (const file of files) await access(path.join(root, file));
+const modules = await Promise.all(files.filter((f) => f.endsWith(".bas")).map((f) => readFile(path.join(root, f), "utf8"))); const source = modules.join("\n");
+for (const name of ["ProfiEnsureProject","ProfiComposeSchedule","ProfiConfigureParser","ProfiInstallMenu","PROFI_FIO_SHORT","PROFI_POSITION_COUNT","PROFI_TASK_STATUS"]) if (!new RegExp(`\\b(?:Sub|Function)\\s+${name}\\b`, "i").test(source)) throw new Error(`Legacy procedure missing: ${name}`);
+if (/\bPtrSafe\b/.test(source)) throw new Error("Legacy VBA must not require VBA7-only PtrSafe declarations");
+const legacyJs = await readFile(path.join(root, "src/ui/taskpane-office2016.js"), "utf8"); for (const token of ["=>", "?.", "??", "import ", "export "]) if (legacyJs.includes(token)) throw new Error(`Office 2016 ES5 bundle contains unsupported token: ${token}`);
+console.log(`Legacy compatibility verified: ${files.length} files, ${modules.length} VBA modules`);

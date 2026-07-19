@@ -1,24 +1,19 @@
 name: 💡 Запрос функции
-description: Предложить функцию, апплет или сценарий расписания
-title: "[FEATURE] "
-labels: [enhancement]
+about: Предложить функцию, апплет или сценарий расписания
 body:
   - type: textarea
     id: problem
     attributes:
       label: Рабочая задача
-      description: Какую проблему должен решить новый сценарий?
     validations:
       required: true
   - type: textarea
     id: flow
     attributes:
       label: Ожидаемый flow
-      description: Опишите последовательность действий пользователя.
     validations:
       required: true
   - type: textarea
     id: example
     attributes:
       label: Обезличенный пример
-      description: Приведите структуру таблицы, формулу или пример результата без персональных данных.
