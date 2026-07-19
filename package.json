@@ -1,9 +1,9 @@
 {
   "name": "profi-excel-helper",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "private": true,
   "type": "module",
-  "description": "ПрофиПомощник — Excel Office Add-in для кадров, преподавателей, планирования и сводного расписания",
+  "description": "ПрофиПомощник — Excel Office Add-in, XLAM и XLTM для кадров, преподавателей, планирования и сводного расписания",
   "license": "MIT",
   "engines": {"node": ">=20"},
   "scripts": {
@@ -14,11 +14,17 @@
     "build": "node scripts/build.mjs",
     "build:dev": "BASE_URL=https://localhost:3000 node scripts/build.mjs",
     "smoke": "node scripts/smoke-dist.mjs",
-    "check": "npm run generate && npm run syntax && npm run legacy:check && npm run test && npm run validate && npm run docs:check && npm run build && npm run smoke",
+    "check": "npm run generate && npm run syntax && npm run legacy:check && npm run distribution:check && npm run test && npm run validate && npm run docs:check && npm run build && npm run smoke",
     "certs": "bash scripts/generate-cert.sh",
     "start": "npm run build:dev && npm run certs && node scripts/dev-server.mjs",
     "syntax": "node scripts/syntax-check.mjs",
     "legacy:check": "node scripts/check-legacy.mjs",
-    "legacy:build": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xlam.ps1"
+    "distribution:check": "node scripts/check-distribution.mjs",
+    "legacy:build": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xlam.ps1",
+    "legacy:build-template": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-xltm.ps1",
+    "legacy:build-all": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/build-office-packages.ps1",
+    "legacy:verify": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/verify-office-packages.ps1",
+    "installer:bundle": "powershell -ExecutionPolicy Bypass -File installer/windows/build-portable-bundle.ps1",
+    "installer:build": "powershell -ExecutionPolicy Bypass -File installer/windows/build-installer.ps1"
   }
 }
