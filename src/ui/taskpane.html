@@ -1,1 +1,55 @@
-<!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>ПрофиПомощник</title><link rel="stylesheet" href="taskpane.css"><script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script></head><body><header><div><h1>🧰 ПрофиПомощник</h1><p>Функции, апплеты и сводное расписание</p></div><button id="ensure-project">Проверить книгу</button></header><div class="search"><input id="search" type="search" placeholder="Поиск функций, апплетов и справки…"><button id="clear-search" aria-label="Очистить">×</button></div><nav><button data-tab="home" class="active">Главная</button><button data-tab="applets">Апплеты</button><button data-tab="functions">Функции</button><button data-tab="schedule">Расписание</button><button data-tab="help">Справка</button></nav><main><section id="tab-home" class="tab active"></section><section id="tab-applets" class="tab"></section><section id="tab-functions" class="tab"></section><section id="tab-schedule" class="tab"></section><section id="tab-help" class="tab"></section><section id="search-results" class="tab"></section></main><div id="toast" role="status" aria-live="polite"></div><script type="module" src="../runtime.js"></script></body></html>
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ПрофиПомощник</title>
+  <link rel="stylesheet" href="taskpane.css">
+  <script src="https://appsforoffice.microsoft.com/lib/1/hosted/office.js"></script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>🧰 ПрофиПомощник</h1>
+      <p>Функции, апплеты и сводное расписание</p>
+    </div>
+    <button id="ensure-project" type="button">Проверить книгу</button>
+  </header>
+
+  <div id="environment-banner" class="environment-banner loading">
+    <strong id="environment-title">Определение среды…</strong>
+    <span id="environment-description">Панель готовится к работе.</span>
+  </div>
+
+  <div class="search">
+    <input id="search" type="search" placeholder="Поиск функций, апплетов и справки…" autocomplete="off">
+    <button id="clear-search" type="button" aria-label="Очистить поиск">×</button>
+  </div>
+
+  <nav aria-label="Разделы">
+    <button type="button" data-tab="home" class="active">Главная</button>
+    <button type="button" data-tab="applets">Апплеты</button>
+    <button type="button" data-tab="functions">Функции</button>
+    <button type="button" data-tab="schedule">Расписание</button>
+    <button type="button" data-tab="help">Справка</button>
+  </nav>
+
+  <main>
+    <section id="tab-home" class="tab active"></section>
+    <section id="tab-applets" class="tab"></section>
+    <section id="tab-functions" class="tab"></section>
+    <section id="tab-schedule" class="tab"></section>
+    <section id="tab-help" class="tab"></section>
+    <section id="search-results" class="tab"></section>
+  </main>
+
+  <footer>
+    <span id="catalog-summary">Загрузка каталога…</span>
+    <a href="https://github.com/f2re/excel_helper" target="_blank" rel="noreferrer">GitHub</a>
+  </footer>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <noscript>Для работы панели требуется JavaScript.</noscript>
+  <script type="module" src="../runtime.js"></script>
+</body>
+</html>
