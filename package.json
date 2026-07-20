@@ -5,18 +5,26 @@
   "type": "module",
   "description": "ПрофиПомощник — Excel Office Add-in, XLAM и XLTM для кадров, преподавателей, планирования и сводного расписания",
   "license": "MIT",
-  "engines": {"node": ">=20"},
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "generate": "node scripts/generate-functions.mjs",
     "test": "node --test --test-reporter spec",
     "validate": "node scripts/validate.mjs",
     "docs:check": "node scripts/check-docs.mjs",
     "build": "node scripts/build.mjs",
-    "build:dev": "BASE_URL=https://localhost:3000 node scripts/build.mjs",
+    "build:dev": "node scripts/build.mjs --base-url=https://localhost:3000",
     "smoke": "node scripts/smoke-dist.mjs",
-    "check": "npm run generate && npm run syntax && npm run legacy:check && npm run distribution:check && npm run test && npm run validate && npm run docs:check && npm run build && npm run smoke",
-    "certs": "bash scripts/generate-cert.sh",
-    "start": "npm run generate && npm run build:dev && npm run certs && node scripts/dev-server.mjs",
+    "check": "npm run syntax && npm run legacy:check && npm run distribution:check && npm run test && npm run build && npm run validate && npm run docs:check && npm run smoke",
+    "certs": "node scripts/dev-cert.mjs",
+    "certs:trust:mac": "node scripts/dev-cert.mjs --trust",
+    "start": "npm run build:dev && npm run certs && node scripts/dev-server.mjs --watch --open",
+    "start:no-open": "npm run build:dev && npm run certs && node scripts/dev-server.mjs --watch --no-open",
+    "serve": "node scripts/dev-server.mjs --no-open",
+    "start:mac": "npm run build:dev && npm run certs:trust:mac && npm run sideload:mac -- --skip-build && node scripts/dev-server.mjs --watch --open",
+    "sideload:mac": "node scripts/sideload-macos.mjs",
+    "unsideload:mac": "node scripts/sideload-macos.mjs --remove",
     "syntax": "node scripts/syntax-check.mjs",
     "legacy:check": "node scripts/check-legacy.mjs",
     "distribution:check": "node scripts/check-distribution.mjs",
@@ -27,6 +35,7 @@
     "legacy:verify": "powershell -ExecutionPolicy Bypass -File legacy-vba/scripts/verify-office-packages.ps1",
     "installer:bundle": "powershell -ExecutionPolicy Bypass -File installer/windows/build-portable-bundle.ps1",
     "installer:build": "powershell -ExecutionPolicy Bypass -File installer/windows/build-installer.ps1",
-    "installer:sign": "powershell -ExecutionPolicy Bypass -File installer/windows/sign-installer.ps1"
+    "installer:sign": "powershell -ExecutionPolicy Bypass -File installer/windows/sign-installer.ps1",
+    "package:modern": "node scripts/package-modern.mjs"
   }
 }
