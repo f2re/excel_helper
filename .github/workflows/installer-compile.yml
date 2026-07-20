@@ -1,0 +1,51 @@
+name: Compile Windows installer project
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  compile-installer:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Inno Setup compiler
+        shell: powershell
+        run: choco install innosetup --no-progress -y
+      - name: Create compile-only payload fixture
+        shell: powershell
+        run: |
+          New-Item -ItemType Directory -Force -Path release\payload\legacy, release\payload\template, release\payload\officejs, release\payload\docs | Out-Null
+          Set-Content release\payload\legacy\ProfiExcelHelper-Legacy.xlam 'compile fixture'
+          Set-Content release\payload\template\ProfiExcelHelper-Template.xltm 'compile fixture'
+          Copy-Item manifest.xml release\payload\officejs\manifest.xml
+          Copy-Item manifest-office2016.xml release\payload\officejs\manifest-office2016.xml
+          Copy-Item README.md release\payload\docs\README.md
+      - name: Compile Inno Setup project
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          try {
+            & .\installer\windows\build-installer.ps1 -PayloadRoot release\payload -OutputDirectory release 2>&1 | Tee-Object -FilePath installer-compile-output.txt
+            if (-not (Test-Path release\ProfiExcelHelper-Setup-1.2.0.exe)) { throw 'Installer EXE was not produced.' }
+            $size = (Get-Item release\ProfiExcelHelper-Setup-1.2.0.exe).Length
+            if ($size -lt 100000) { throw "Compiled installer is unexpectedly small: $size" }
+            "Inno Setup compile smoke passed: $size bytes" | Tee-Object -FilePath installer-compile-output.txt -Append
+          } catch {
+            ($_ | Format-List * -Force | Out-String) | Tee-Object -FilePath installer-compile-output.txt -Append
+            Get-ChildItem -Recurse installer\windows\dist, release -ErrorAction SilentlyContinue | Format-Table FullName, Length | Out-String | Tee-Object -FilePath installer-compile-output.txt -Append
+            throw
+          }
+      - name: Upload installer compile diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: installer-compile-output
+          path: installer-compile-output.txt
+          if-no-files-found: ignore

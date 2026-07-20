@@ -23,14 +23,17 @@ jobs:
         run: npm ci
       - name: Verify project
         run: npm run check
-      - name: Package source and production build
+      - name: Package source, modern build and portable sources
         shell: bash
         run: |
           set -euo pipefail
           version="${GITHUB_REF_NAME:-manual}"
-          mkdir -p release
+          mkdir -p release/portable-sources
           zip -qr "release/profi-excel-helper-${version}-dist.zip" dist
           git archive --format=zip --output="release/profi-excel-helper-${version}-source.zip" HEAD
+          cp -a legacy-vba installer manifest.xml manifest-office2016.xml docs README.md release/portable-sources/
+          (cd release && zip -qr "profi-excel-helper-${version}-portable-sources.zip" portable-sources)
+          rm -rf release/portable-sources
           sha256sum release/*.zip > release/SHA256SUMS.txt
       - name: Upload workflow artifacts
         uses: actions/upload-artifact@v4

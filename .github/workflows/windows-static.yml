@@ -1,0 +1,92 @@
+name: Windows packaging checks
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-static:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - name: Clean install
+        shell: powershell
+        run: npm ci
+      - name: Generate metadata
+        shell: powershell
+        run: npm run generate
+      - name: JavaScript syntax
+        shell: powershell
+        run: npm run syntax
+      - name: Legacy source audit
+        shell: powershell
+        run: npm run legacy:check
+      - name: Distribution audit
+        shell: powershell
+        run: npm run distribution:check
+      - name: Unit tests
+        shell: powershell
+        run: |
+          npm test *> unit-test-output.txt
+          $code = $LASTEXITCODE
+          Get-Content unit-test-output.txt -Tail 120
+          if ($code -ne 0) { exit $code }
+      - name: Upload failed test diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-unit-test-output
+          path: unit-test-output.txt
+          if-no-files-found: ignore
+      - name: Manifest validation
+        shell: powershell
+        run: npm run validate
+      - name: Documentation links
+        shell: powershell
+        run: npm run docs:check
+      - name: Production build
+        shell: powershell
+        run: npm run build
+      - name: Distribution smoke test
+        shell: powershell
+        run: npm run smoke
+      - name: Parse project PowerShell sources
+        shell: powershell
+        run: |
+          $failed = $false
+          $diagnostics = New-Object System.Collections.Generic.List[string]
+          $files = @(
+            Get-ChildItem legacy-vba\scripts -Recurse -File -Include *.ps1,*.psm1
+            Get-ChildItem installer\windows -Recurse -File -Include *.ps1,*.psm1
+          )
+          foreach ($file in $files) {
+            $tokens = $null
+            $errors = $null
+            [void][System.Management.Automation.Language.Parser]::ParseFile($file.FullName, [ref]$tokens, [ref]$errors)
+            foreach ($parseError in $errors) {
+              $failed = $true
+              $line = "$($file.FullName):$($parseError.Extent.StartLineNumber):$($parseError.Extent.StartColumnNumber): $($parseError.Message)"
+              $diagnostics.Add($line)
+              Write-Host $line
+            }
+          }
+          $diagnostics | Set-Content powershell-parse-errors.txt -Encoding UTF8
+          if ($failed) { exit 1 }
+          Write-Host "Parsed $($files.Count) PowerShell files"
+      - name: Upload PowerShell parser diagnostics
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: powershell-parse-errors
+          path: powershell-parse-errors.txt
+          if-no-files-found: ignore

@@ -1,9 +1,9 @@
 # 🏗 Архитектура
 
-## Два контура
+## Контуры выполнения
 
 ```text
-Современный Excel
+Microsoft 365 / современный Excel
   manifest.xml
   ├─ Shared Runtime
   ├─ 114 Custom Functions
@@ -14,13 +14,30 @@ Excel 2016 совместимый task pane
   manifest-office2016.xml
   └─ ES5 + ExcelApi 1.1
 
-Excel 2010/2013/2016 Windows
-  ProfiExcelHelper-Legacy.xlam
-  ├─ VBA-UDF
-  ├─ CommandBar-меню
-  ├─ служебные ListObject-таблицы
-  └─ VBA составитель расписания
+Excel 2010/2013/2016/2019 Windows
+  ├─ ProfiExcelHelper-Legacy.xlam
+  │   ├─ глобальные VBA-UDF
+  │   ├─ CommandBar-меню
+  │   └─ VBA составитель расписания
+  └─ ProfiExcelHelper-Template.xltm
+      ├─ автономный проект
+      ├─ стартовый лист и кнопки
+      └─ те же общие VBA-модули
+
+Windows-поставка
+  ├─ PowerShell per-user installer
+  ├─ Inno Setup EXE
+  └─ переносимый ZIP
 ```
+
+## Единые исходники legacy
+
+XLAM и XLTM собираются из одного каталога `legacy-vba/src`:
+
+- общие функции, схема и расписание входят в оба пакета;
+- `modProfiMenu` используется только XLAM;
+- `modProfiTemplate` используется только XLTM;
+- `ProfiHostWorkbook` выбирает активную книгу и корректно работает как из Add-in, так и из созданной по шаблону книги.
 
 ## Современный исходный код
 
@@ -34,6 +51,17 @@ src/
 └── runtime.js
 ```
 
+## Сборка и поставка
+
+```text
+scripts/build.mjs                    → dist/ Office.js
+legacy-vba/scripts/build-xlam.ps1   → XLAM
+legacy-vba/scripts/build-xltm.ps1   → XLTM
+installer/windows/build-*.ps1       → payload, ZIP и EXE
+```
+
+GitHub-hosted CI проверяет исходники и PowerShell. Реальная бинарная сборка XLAM/XLTM выполняется на self-hosted Windows runner с Excel.
+
 ## Инварианты
 
 - источники не переписываются;
@@ -42,8 +70,8 @@ src/
 - группа может быть сохранена как значение либо как адрес ячейки;
 - все автоматические выводы парсера допускают ручную корректировку;
 - одинаковая фамилия без достаточного алиаса считается неоднозначной;
-- поток требует совпадения времени, дисциплины, вида и аудитории.
+- поток требует совпадения времени, дисциплины, вида и аудитории;
+- установка выполняется в профиль пользователя и имеет откат;
+- закрытые ключи подписи не входят в репозиторий.
 
-## Хранение
-
-Backend отсутствует. Современный и legacy-контуры записывают данные в текущую книгу. Конфигурация переносится вместе с файлом.
+Backend отсутствует. Все контуры записывают данные в текущую книгу пользователя.

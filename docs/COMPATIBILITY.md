@@ -1,35 +1,24 @@
-# 🖥 Совместимость
+# 💻 Совместимость
 
-## Матрица
+| Платформа | Рекомендуемый пакет | Статус |
+|---|---|---|
+| Microsoft 365 Excel Windows | `manifest.xml` | полный режим |
+| Microsoft 365 Excel macOS/Web | `manifest.xml` | полный Office.js-режим без VBA |
+| Excel 2019 Windows | XLAM/XLTM; Office.js по requirement sets | поддерживается legacy-контуром |
+| Excel 2016 Windows | `manifest-office2016.xml` + XLAM/XLTM | поддерживается |
+| Excel 2013 Windows | XLAM/XLTM | поддерживается |
+| Excel 2010 Windows | XLAM/XLTM | поддерживается |
+| Office «2012» | использовать матрицу 2010/2013 | отдельной версии не существовало |
+| iPad | ограниченно | без legacy VBA |
 
-| Версия | Современный манифест | Совместимая панель | Legacy XLAM |
-|---|---:|---:|---:|
-| Microsoft 365 Windows | ✅ | не требуется | опционально |
-| Microsoft 365 macOS/Web | ✅ | не требуется | нет гарантии |
-| Excel 2016 Windows | зависит от канала и обновлений | ✅ при ExcelApi 1.1 | ✅ рекомендуется |
-| Excel 2013 Windows | ❌ | ❌ | ✅ |
-| Excel 2010 Windows | ❌ | ❌ | ✅ |
+## Почему несколько пакетов
 
-Microsoft не выпускала Office 2012. В разговорной формулировке обычно подразумевается Office 2010 или Office 2013.
+Современные Custom Functions и Shared Runtime зависят от requirement sets Office.js. Старые и бессрочные редакции Excel не дают одинакового набора API, поэтому гарантированный контур 2010–2019 реализован через VBA в `.xlam` и `.xltm`.
 
-## Почему нужны два контура
+## Разрядность
 
-Office.js Custom Functions, Shared Runtime и новые ExcelApi requirement sets появились позже и не могут быть одинаково доступны в старых perpetual-версиях. Поэтому:
+Legacy VBA не содержит `Declare`, `PtrSafe`, `LongPtr` и других WinAPI-зависимостей. Один бинарный XLAM/XLTM подходит для x86 и x64 Office. Установщик всё равно определяет разрядность и записывает её в журнал диагностики.
 
-- современный контур использует `manifest.xml`, 114 функций `PROFI`, shared runtime и полную панель;
-- Excel 2016 получает task-pane-only `manifest-office2016.xml` на ExcelApi 1.1;
-- Excel 2010/2013/2016 Windows получают VBA/XLAM-контур.
+## Windows и macOS
 
-## Ограничения legacy
-
-- VBA-UDF используют английские имена с префиксом `PROFI_`, например `PROFI_FIO_SHORT`;
-- реализован основной востребованный набор UDF, а массовые операции и расписание доступны через меню;
-- установка и автоматическая сборка ориентированы на Windows COM Automation;
-- старые выпуски Office уже не получают обновления безопасности от Microsoft;
-- XLAM с макросами должен быть подписан и развёрнут из доверенного расположения.
-
-Актуальные ссылки Microsoft:
-
-- [Office Add-ins requirement sets](https://learn.microsoft.com/office/dev/add-ins/develop/office-versions-and-requirement-sets)
-- [Excel JavaScript API requirement sets](https://learn.microsoft.com/javascript/api/requirement-sets/excel/excel-api-requirement-sets)
-- [Custom Functions requirements](https://learn.microsoft.com/office/dev/add-ins/excel/custom-functions-requirements)
+XLAM/XLTM ориентированы на Windows, поскольку автоматическая сборка, регистрация и установщик используют Excel COM. На macOS следует применять современный Office.js-манифест либо вручную проверять переносимость конкретных VBA-модулей.

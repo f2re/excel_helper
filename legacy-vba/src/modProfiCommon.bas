@@ -1,15 +1,25 @@
 Attribute VB_Name = "modProfiCommon"
 Option Explicit
 
-Public Const PROFI_VERSION As String = "1.1.0"
+Public Const PROFI_VERSION As String = "1.2.0"
 
 Public Function ProfiHostWorkbook() As Workbook
     Dim wb As Workbook
     If Not Application.ActiveWorkbook Is Nothing Then
-        If Not Application.ActiveWorkbook Is ThisWorkbook And Not Application.ActiveWorkbook.IsAddin Then Set ProfiHostWorkbook = Application.ActiveWorkbook: Exit Function
+        If Not Application.ActiveWorkbook.IsAddin Then
+            Set ProfiHostWorkbook = Application.ActiveWorkbook
+            Exit Function
+        End If
+    End If
+    If Not ThisWorkbook.IsAddin Then
+        Set ProfiHostWorkbook = ThisWorkbook
+        Exit Function
     End If
     For Each wb In Application.Workbooks
-        If Not wb Is ThisWorkbook And Not wb.IsAddin Then Set ProfiHostWorkbook = wb: Exit Function
+        If Not wb.IsAddin Then
+            Set ProfiHostWorkbook = wb
+            Exit Function
+        End If
     Next
 End Function
 

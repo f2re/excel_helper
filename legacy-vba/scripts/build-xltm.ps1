@@ -1,6 +1,6 @@
 ﻿[CmdletBinding()]
 param(
-  [string]$OutputPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Legacy.xlam'),
+  [string]$OutputPath = (Join-Path $PSScriptRoot '..\dist\ProfiExcelHelper-Template.xltm'),
   [string]$Version = '1.2.0'
 )
 
@@ -16,10 +16,23 @@ try {
 
   $excel = New-ProfiExcelApplication
   $workbook = $excel.Workbooks.Add(-4167)
-  [void](Import-ProfiVbaModules -Workbook $workbook -Exclude @('modProfiTemplate.bas'))
-  Set-ProfiDocumentProperties -Workbook $workbook -Title 'ПрофиПомощник Legacy XLAM' -Version $Version
-  $workbook.IsAddin = $true
-  $workbook.SaveAs($fullOutput, 55)
+  [void](Import-ProfiVbaModules -Workbook $workbook -Exclude @('modProfiMenu.bas'))
+  Set-ProfiThisWorkbookCode -Workbook $workbook -Code @'
+Option Explicit
+
+Private Sub Workbook_Open()
+    On Error Resume Next
+    ProfiTemplateOnOpen
+End Sub
+
+Private Sub Workbook_BeforeClose(Cancel As Boolean)
+    On Error Resume Next
+    ProfiTemplateBeforeClose
+End Sub
+'@
+  [void](Initialize-ProfiTemplateSheet -Workbook $workbook -Version $Version)
+  Set-ProfiDocumentProperties -Workbook $workbook -Title 'ПрофиПомощник — переносимый шаблон' -Version $Version
+  $workbook.SaveAs($fullOutput, 53)
   $workbook.Close($false)
   Close-ProfiComObject $workbook
   $workbook = $null
@@ -29,8 +42,8 @@ try {
 
   Add-ProfiRibbon -WorkbookPath $fullOutput -RibbonXmlPath (Join-Path $PSScriptRoot '..\ribbon\customUI.xml')
   if (-not (Test-Path -LiteralPath $fullOutput)) { throw "Excel не создал файл: $fullOutput" }
-  if ((Get-Item -LiteralPath $fullOutput).Length -lt 4096) { throw 'Созданный XLAM имеет подозрительно малый размер.' }
-  Write-Host "Built XLAM: $fullOutput"
+  if ((Get-Item -LiteralPath $fullOutput).Length -lt 4096) { throw 'Созданный XLTM имеет подозрительно малый размер.' }
+  Write-Host "Built XLTM: $fullOutput"
 } finally {
   if ($null -ne $workbook) { try { $workbook.Close($false) } catch { }; Close-ProfiComObject $workbook }
   if ($null -ne $excel) { try { $excel.Quit() } catch { }; Close-ProfiComObject $excel }
