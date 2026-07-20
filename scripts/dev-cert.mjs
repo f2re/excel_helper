@@ -78,8 +78,8 @@ if (trustRequested) {
     throw new Error("Автоматическое доверие через этот скрипт реализовано только для macOS. Импортируйте cert.pem вручную.");
   }
   const keychain = path.join(os.homedir(), "Library", "Keychains", "login.keychain-db");
-  run("security", ["add-trusted-cert", "-d", "-r", "trustRoot", "-k", keychain, certPath]);
-  console.log("Сертификат добавлен в login keychain как доверенный корневой сертификат.");
+  run("security", ["add-trusted-cert", "-r", "trustRoot", "-k", keychain, certPath]);
+  console.log("Сертификат добавлен в login keychain текущего пользователя как доверенный корневой сертификат.");
 } else if (process.platform === "darwin") {
   console.log("Для доверия на macOS выполните: npm run certs:trust:mac");
 } else {
