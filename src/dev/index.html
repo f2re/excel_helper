@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ПрофиПомощник — локальная разработка</title>
+  <link rel="stylesheet" href="./src/dev/dashboard.css">
+</head>
+<body>
+  <header class="hero">
+    <div>
+      <span class="eyebrow">LOCAL DEVELOPMENT</span>
+      <h1>🧰 ПрофиПомощник для Excel</h1>
+      <p>Панель запуска, диагностика сборки и ссылки для загрузки надстройки.</p>
+    </div>
+    <span id="server-status" class="status pending">проверка…</span>
+  </header>
+
+  <main>
+    <section class="stats" aria-label="Статус сборки">
+      <article><strong id="version">—</strong><span>версия</span></article>
+      <article><strong id="function-count">—</strong><span>функций</span></article>
+      <article><strong id="applet-count">—</strong><span>апплета</span></article>
+      <article><strong id="build-time">—</strong><span>сборка</span></article>
+    </section>
+
+    <section class="panel primary-panel">
+      <div>
+        <h2>Интерактивный preview</h2>
+        <p>Открывает ту же панель, которая загружается в Excel. В браузере работают поиск, каталог, справка и вычислительный стенд функций. Команды изменения книги доступны только внутри Excel.</p>
+      </div>
+      <a class="button" href="./src/ui/taskpane.html">Открыть task pane</a>
+    </section>
+
+    <section class="columns">
+      <article class="panel">
+        <h2>Microsoft 365</h2>
+        <p>Основной манифест с Shared Runtime, пользовательскими функциями и полной панелью.</p>
+        <div class="actions">
+          <a class="button" href="./manifest.xml">Открыть manifest.xml</a>
+          <button data-copy="./manifest.xml">Скопировать URL</button>
+        </div>
+      </article>
+      <article class="panel">
+        <h2>Excel 2016 task pane</h2>
+        <p>Облегчённый манифест ExcelApi 1.1 без Custom Functions и Shared Runtime.</p>
+        <div class="actions">
+          <a class="button" href="./manifest-office2016.xml">Открыть manifest-office2016.xml</a>
+          <button data-copy="./manifest-office2016.xml">Скопировать URL</button>
+        </div>
+      </article>
+    </section>
+
+    <section class="panel">
+      <h2>Что делает <code>npm start</code></h2>
+      <ol>
+        <li>Генерирует <code>src/functions.json</code> и справочники функций/апплетов.</li>
+        <li>Собирает <code>dist/</code> для <code>https://localhost:3000</code>.</li>
+        <li>Создаёт локальный HTTPS-сертификат, если его ещё нет.</li>
+        <li>Запускает HTTPS-сервер, слежение за исходниками и эту страницу.</li>
+      </ol>
+      <p class="note">Браузер не предоставляет объектную модель Excel. Для реальной работы с книгой загрузите <code>dist/manifest.xml</code> в Excel.</p>
+    </section>
+
+    <section class="columns">
+      <article class="panel">
+        <h2>macOS</h2>
+        <pre><code>npm ci
+npm run certs:trust:mac
+npm run start:mac</code></pre>
+        <p>Команда копирует dev-манифест в папку <code>wef</code> Excel и запускает сервер без PowerShell.</p>
+      </article>
+      <article class="panel">
+        <h2>Проверка перед релизом</h2>
+        <pre><code>npm run check</code></pre>
+        <p>Проверяет функции, апплеты, расписание, манифесты, документацию и production-сборку.</p>
+      </article>
+    </section>
+
+    <section class="panel links">
+      <h2>Документация</h2>
+      <a href="https://github.com/f2re/excel_helper/blob/main/docs/LOCAL_DEVELOPMENT.md">Локальная разработка</a>
+      <a href="https://github.com/f2re/excel_helper/blob/main/docs/MACOS.md">Сборка на macOS</a>
+      <a href="https://github.com/f2re/excel_helper/blob/main/docs/USE_CASES.md">Сценарии использования</a>
+      <a href="https://github.com/f2re/excel_helper/blob/main/docs/TROUBLESHOOTING.md">Диагностика</a>
+    </section>
+  </main>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+  <script type="module" src="./src/dev/dashboard.js"></script>
+</body>
+</html>
