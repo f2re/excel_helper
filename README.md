@@ -35,11 +35,12 @@
 git clone https://github.com/f2re/excel_helper.git
 cd excel_helper
 npm ci
-npm run check
 npm start
 ```
 
-После запуска используйте `dist/manifest.xml`. Для облегчённой панели Excel 2016 — `dist/manifest-office2016.xml`.
+`npm start` автоматически генерирует метаданные функций, собирает dev-версию и запускает локальный HTTPS-сервер. Предварительно выполнять `npm run generate` или `npm run check` не требуется.
+
+После запуска используйте `dist/manifest.xml`. Для облегчённой панели Excel 2016 — `dist/manifest-office2016.xml`. Полную проверку проекта перед публикацией можно запустить отдельно командой `npm run check`.
 
 ## 🧩 XLAM и XLTM
 

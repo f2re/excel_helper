@@ -16,7 +16,7 @@
     "smoke": "node scripts/smoke-dist.mjs",
     "check": "npm run generate && npm run syntax && npm run legacy:check && npm run distribution:check && npm run test && npm run validate && npm run docs:check && npm run build && npm run smoke",
     "certs": "bash scripts/generate-cert.sh",
-    "start": "npm run build:dev && npm run certs && node scripts/dev-server.mjs",
+    "start": "npm run generate && npm run build:dev && npm run certs && node scripts/dev-server.mjs",
     "syntax": "node scripts/syntax-check.mjs",
     "legacy:check": "node scripts/check-legacy.mjs",
     "distribution:check": "node scripts/check-distribution.mjs",
