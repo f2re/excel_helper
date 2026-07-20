@@ -21,7 +21,7 @@
     "certs:trust:mac": "node scripts/dev-cert.mjs --trust",
     "start": "npm run build:dev && npm run certs && node scripts/dev-server.mjs --watch --open",
     "start:no-open": "npm run build:dev && npm run certs && node scripts/dev-server.mjs --watch --no-open",
-    "serve": "node scripts/dev-server.mjs --no-open",
+    "serve": "npm run certs && node scripts/dev-server.mjs --no-open",
     "start:mac": "npm run build:dev && npm run certs:trust:mac && npm run sideload:mac -- --skip-build && node scripts/dev-server.mjs --watch --open",
     "sideload:mac": "node scripts/sideload-macos.mjs",
     "unsideload:mac": "node scripts/sideload-macos.mjs --remove",
