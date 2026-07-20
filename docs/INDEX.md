@@ -2,7 +2,10 @@
 
 | Документ | Назначение |
 |---|---|
-| [README](../README.md) | обзор проекта и быстрый старт |
+| [README](../README.md) | обзор, варианты поставки и быстрый старт |
+| [Локальная разработка](LOCAL_DEVELOPMENT.md) | точное поведение `npm start`, localhost, watch и browser preview |
+| [macOS](MACOS.md) | сборка, сертификаты и sideload без PowerShell |
+| [Сценарии](USE_CASES.md) | рабочие кейсы и граничные условия |
 | [Установка](INSTALLATION.md) | Office.js, XLAM, XLTM, PowerShell и EXE |
 | [Варианты поставки](DISTRIBUTION.md) | различия пакетов и процесс сборки |
 | [Совместимость](COMPATIBILITY.md) | Excel 2010–2019 и Microsoft 365 |

@@ -5,9 +5,31 @@ import { registerRibbonCommands } from "./commands.js";
 
 export function registerCustomFunctions() {
   if (!globalThis.CustomFunctions?.associate) return 0;
-  for (const definition of FUNCTION_CATALOG) CustomFunctions.associate(definition.id, (...args) => evaluateFunction(definition.id, args));
+  for (const definition of FUNCTION_CATALOG) {
+    CustomFunctions.associate(definition.id, (...args) => evaluateFunction(definition.id, args));
+  }
   return FUNCTION_CATALOG.length;
 }
-registerCustomFunctions(); registerRibbonCommands();
-if (globalThis.Office?.onReady) Office.onReady((info) => { if (info.host === Office.HostType.Excel) initializeTaskpane(); });
-else if (typeof document !== "undefined") document.addEventListener("DOMContentLoaded", () => initializeTaskpane());
+
+function bootTaskpane(context = {}) {
+  if (typeof document === "undefined") return;
+  initializeTaskpane(context);
+}
+
+registerCustomFunctions();
+registerRibbonCommands();
+
+if (typeof document !== "undefined") {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => bootTaskpane({ source: "dom" }), { once: true });
+  } else {
+    queueMicrotask(() => bootTaskpane({ source: "dom" }));
+  }
+}
+
+if (globalThis.Office?.onReady) {
+  Office.onReady((officeInfo) => bootTaskpane({ source: "office", officeInfo: officeInfo || {} })).catch((officeError) => {
+    console.warn("Office.js initialization failed; browser preview remains available.", officeError);
+    bootTaskpane({ source: "office", officeError });
+  });
+}
